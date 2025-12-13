@@ -1,0 +1,62 @@
+@use '../../styles/ne-global-imports' as *;
+
+$block: 'usa-button';
+
+.#{$block} {
+	transition: background-color $transition, text-decoration-color $transition;
+	font-size: font-size('ui', 'sm');
+
+	.icon {
+		display: flex; // to help with the vertical aligment
+	}
+
+	&__wrap {
+		em {
+			font-style: normal;
+		}
+	}
+	
+	&.usa-link--external {
+		&:after {
+			margin-top: 0;
+		}
+	}
+
+	&--secondary {
+		$button-context: 'Button';
+
+		&:visited {
+			@include set-text-from-bg('secondary', $context: $button-context);
+		}
+
+		&:hover,
+		&.#{$block}--hover {
+			@include set-text-and-bg('secondary-light', $context: $button-context);
+		}
+
+		&:active,
+		&.#{$block}--active {
+			@include set-text-and-bg('secondary-lighter', $context: $button-context);
+		}
+	}
+
+	&--outline {
+		text-decoration: underline;
+		text-decoration-color: transparent;
+
+		&:hover,
+		&.#{$block}--hover {
+			text-decoration: underline;
+			text-decoration-color: currentcolor;
+		}
+	}
+
+	&.#{$block}--big {
+		font-size: size( 'ui', 'lg');
+
+		.usa-icon {
+			width: 1.2em;
+			height: 1.2em;
+		}
+	}
+}

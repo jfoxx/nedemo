@@ -1,0 +1,100 @@
+@use '../../styles/ne-global-imports' as *;
+
+// basic tag styles here, NO BLOCKS
+/* fallback font for Montserrat (normal - 400) */
+@font-face {
+	font-family: 'montserrat-normal-400-fallback';
+	size-adjust: 101.3%;
+	src: local('Arial');
+}
+
+/* fallback font for Roboto (normal - 400) */
+@font-face {
+	font-family: 'roboto-normal-400-fallback';
+	size-adjust: 101.9%;
+	src: local('Arial');
+}
+
+body {
+	display: none;
+	overflow-x: hidden;
+
+	&:has(header .header[data-block-status='loaded']),
+	&.appear { // stylelint-disable-line selector-no-qualifying-type
+		display: block;
+	}
+}
+
+main {
+	overflow-x: hidden; // https://stackoverflow.com/questions/14270084/overflow-xhidden-doesnt-prevent-content-from-overflowing-in-mobile-browsers
+}
+
+figure,
+picture,
+img {
+	height: auto;
+}
+
+a {
+	&.usa-link--pdf { // stylelint-disable-line selector-no-qualifying-type
+		.usa-icon { // stylelint-disable-line selector-no-qualifying-type
+			width: $external-link-size; // found in uswds 
+			height: $external-link-size;
+			margin-left: px-to-rem(4px);
+		}
+	}
+	
+}
+
+figure {
+	margin: units($component-spacing-sm) 0;
+
+	picture {
+		margin: 0;
+	}
+
+	figcaption {
+		@include u-margin-top(2);
+		font-size: size('body', '3xs');
+	}
+}
+
+picture {
+	display: block;
+	margin: units($component-spacing-sm) 0;
+	font-size: 0; // no extra space inside
+}
+
+h2 {
+	&.h2--underline {
+		margin-bottom: units(5);
+
+		&,
+		em,
+		i {
+			font-style: normal;
+		}
+
+		&:after {
+			display: block;
+			width: px-to-rem(80px);
+			max-width: 100%;
+			height: 4px;
+			margin-top: units(3);
+			background-color: color('secondary');
+			content: '';
+		}
+	}
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin-bottom: 1em;
+}
+
+.default-content-wrapper {
+	margin-bottom: units($component-spacing-sm);
+}

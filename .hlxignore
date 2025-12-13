@@ -1,0 +1,11 @@
+.*
+*.md
+karma.config.js
+LICENSE
+package.json
+package-lock.json
+test/*
+_*.json
+*.scss
+helix-configs/*
+tools/*

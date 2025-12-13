@@ -1,0 +1,50 @@
+@use '../../styles/ne-global-imports' as *;
+
+.figure {
+	margin-bottom: units($component-spacing-sm);
+
+	&-wrapper {
+		margin-top: units($component-spacing-sm); // putting up here to avoid float not collapsing
+	}
+
+	figure,
+	img,
+	picture {
+		margin: 0;
+	}
+
+	&.left,
+	&.right {
+		figure, img, picture {
+			display: block;
+			max-width: 100%;
+		}
+	}
+
+	@include at-media('tablet') {
+		$x-margin: units(4);
+
+		&.left,
+		&.right {
+			max-width: 50%;
+		}
+
+		&.left {
+			float: left;
+			clear: left;
+
+			figure {
+				margin-right: $x-margin;
+			}
+		} 
+        
+		&.right {
+			float: right;
+			clear: right;
+
+			figure {
+				margin-left: $x-margin;
+			}
+		} 
+	}
+}

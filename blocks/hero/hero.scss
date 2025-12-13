@@ -1,0 +1,52 @@
+@use '../../styles/ne-global-imports' as *;
+@use './hero-base';
+
+$block: 'usa-hero';
+
+.#{$block} {
+	margin-bottom: units($hero-spacing-sm);
+
+	picture,
+	img {
+		margin: 0;
+	}
+
+	// stylelint-disable-next-line scss/selector-nest-combinators
+	.usa-breadcrumb,
+	.usa-breadcrumb a.usa-breadcrumb__link {
+		color: currentcolor;
+	}
+
+	&__svg {
+		svg {
+			aspect-ratio: 1727 / 86;
+		}
+	}
+
+	&__svg-back {
+		opacity: .5;
+	}
+
+	&:not(:has(picture)) {
+		background: var(--theme-hero-bg, color('primary'));
+		background-image: linear-gradient(to bottom, color('white-transparent-80'), color('white'));
+
+		// stylelint-disable-next-line scss/selector-nest-combinators
+		&,
+		h1,
+		a:not(.usa-button--secondary),
+		.usa-breadcrumb a.usa-breadcrumb__link {
+			color: color('ink');
+		}
+
+		.#{$block}__callout {
+			&:has(.usa-breadcrumb) {
+				padding-top: units(4);
+			}
+		}
+	}
+
+	@include at-media('desktop') {
+		margin-bottom: units($hero-spacing-lg);
+	}
+}
