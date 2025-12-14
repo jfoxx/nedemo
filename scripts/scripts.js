@@ -39,6 +39,12 @@ function buildHeroBlock( main, templateName ) {
 		picture = heroSection.querySelector( 'picture' );
 	}
 
+	// Collect any nested blocks (e.g., ask-search) from the hero section
+	let nestedBlocks = [];
+	if ( heroSection ) {
+		nestedBlocks = [...heroSection.querySelectorAll( '.block' )];
+	}
+
 	const container = document.createElement( 'div' );
 	let heroBlock;
 	if ( templateName === 'homepage' ) {
@@ -46,9 +52,9 @@ function buildHeroBlock( main, templateName ) {
 		if ( heroSection && multipleSections ) {
 			desc = heroSection.querySelectorAll( 'p, ul, ol' );
 		}
-		heroBlock = buildBlock( 'hero-homepage', { elems: [picture, h1, ...desc] } );
+		heroBlock = buildBlock( 'hero-homepage', { elems: [picture, h1, ...desc, ...nestedBlocks] } );
 	} else {
-		heroBlock = buildBlock( 'hero', { elems: [picture, h1] } );
+		heroBlock = buildBlock( 'hero', { elems: [picture, h1, ...nestedBlocks] } );
 	}
 	container.appendChild( heroBlock );
 	main.prepend( container );

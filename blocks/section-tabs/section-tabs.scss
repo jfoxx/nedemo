@@ -1,0 +1,193 @@
+@use '../../styles/ne-global-imports' as *;
+
+// DMV Nebraska color scheme
+$tab-primary-color: #005f86; // Teal/dark blue for Individuals
+$tab-secondary-color: #879630; // Olive/yellow-green for Businesses
+$tab-text-color: #fff;
+$tab-content-bg: #e6f0f5; // Light blue-gray background
+
+.section-tabs {
+	// Remove default block padding
+	&-wrapper {
+		max-width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__container {
+		width: 100%;
+	}
+
+	&__list {
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		@include at-media('desktop') {
+			flex-wrap: nowrap;
+		}
+	}
+
+	&__item {
+		flex: 1 1 50%;
+		margin: 0;
+		padding: 0;
+
+		@include at-media('desktop') {
+			flex: 1;
+		}
+	}
+
+	&__button {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: units(0.5);
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		min-height: 100px;
+		padding: units(3) units(2);
+		padding-bottom: units(4); // Extra padding for arrow
+		font-family: family('heading');
+		font-size: size('body', 'lg');
+		font-weight: bold;
+		color: $tab-text-color;
+		text-align: center;
+		background-color: $tab-primary-color;
+		border: none;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+
+		@include at-media('desktop') {
+			min-height: 120px;
+			padding: units(4) units(3);
+			padding-bottom: units(5); // Extra padding for arrow
+			font-size: size('body', 'xl');
+		}
+
+		&:hover {
+			opacity: 0.9;
+		}
+
+		// Remove all focus outlines
+		&:focus,
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	&__button-icon {
+		width: 24px;
+		height: 24px;
+		fill: currentcolor;
+
+		@include at-media('desktop') {
+			width: 32px;
+			height: 32px;
+		}
+	}
+
+	&__button-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		gap: units(1);
+	}
+
+	// Arrow indicator for active tab - inside the button, below the label
+	&__arrow {
+		position: absolute;
+		bottom: units(1);
+		left: 50%;
+		display: none;
+		width: 0;
+		height: 0;
+		transform: translateX(-50%);
+		border-top: 14px solid $tab-text-color;
+		border-right: 16px solid transparent;
+		border-left: 16px solid transparent;
+
+		@include at-media('desktop') {
+			border-top: 16px solid $tab-text-color;
+			border-right: 20px solid transparent;
+			border-left: 20px solid transparent;
+		}
+	}
+
+	&__button--active &__arrow {
+		display: block;
+	}
+}
+
+// Alternating colors like DMV Nebraska - odd items (1st, 3rd, etc.)
+.section-tabs__item:nth-child(odd) .section-tabs__button {
+	background-color: $tab-primary-color;
+
+	&:hover,
+	&:focus {
+		background-color: darken($tab-primary-color, 8%);
+	}
+}
+
+// Alternating colors - even items (2nd, 4th, etc.)
+.section-tabs__item:nth-child(even) .section-tabs__button {
+	background-color: $tab-secondary-color;
+
+	&:hover,
+	&:focus {
+		background-color: darken($tab-secondary-color, 8%);
+	}
+}
+
+// Icon styling within buttons
+.section-tabs__button .icon,
+.section-tabs__button .usa-icon,
+.section-tabs__button svg {
+	width: 24px;
+	height: 24px;
+	fill: currentcolor;
+
+	@include at-media('desktop') {
+		width: 32px;
+		height: 32px;
+	}
+}
+
+// Paragraph reset (when content comes from block) - inline icon with text
+.section-tabs__button p {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	gap: units(1);
+}
+
+// Styling for sections controlled by tabs
+.section[data-tabsection] {
+	margin-top: 0;
+	padding-top: 0;
+	padding-bottom: units(4);
+	background-color: $tab-content-bg;
+
+	&[aria-hidden='true'] {
+		display: none;
+	}
+}
+
+// Remove spacing from section-tabs container section
+.section {
+	&.section-tabs-container {
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+}

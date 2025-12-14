@@ -31,6 +31,9 @@ export default function decorate( block ) {
 		h1.after( descContainer );
 	}
 
+	// Preserve any nested blocks (e.g., ask-search) that are inside the hero
+	const nestedBlocks = [...block.querySelectorAll( '.block' )];
+
 	const svg = `
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1728 103" preserveAspectRatio="none">
 			<path class="usa-hero__svg-back" d="M1728,103.5H0v-16c214.8-7.6,389.7-21.8,511.9-33.7,203.4-19.7,272.2-34.2,428.8-35,122.8-.6,172.5,7.8,379.1,19.9,176.1,10.3,318.3,14.6,408,16.7v48h.2Z"/>
@@ -44,6 +47,12 @@ export default function decorate( block ) {
 	block.innerText = '';
 	block.appendChild( container );
 	if( backgroundImg ) { container.before( backgroundImg ); }
+
+	// Append any nested blocks to the content area
+	nestedBlocks.forEach( ( nestedBlock ) => {
+		content.appendChild( nestedBlock );
+	} );
+
 	block.appendChild( svgDiv );
 
 	block.querySelectorAll( 'p' ).forEach( el => {

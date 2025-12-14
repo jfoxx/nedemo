@@ -1,0 +1,160 @@
+@use '../../styles/ne-global-imports' as *;
+
+$block: 'ask-search';
+
+.#{$block} {
+	margin-bottom: units($component-spacing-lg);
+
+	&__container {
+		max-width: measure($theme-text-measure);
+	}
+
+	&__form {
+		margin-bottom: units(2);
+	}
+
+	&__input-wrapper {
+		display: flex;
+		gap: units(1);
+		align-items: center;
+		padding: units(1) units(2);
+		background: color('white');
+		border-radius: radius('md');
+		box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+		transition: box-shadow $transition;
+
+		&:focus-within {
+			box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+		}
+	}
+
+	&__input {
+		flex: 1;
+		min-width: 0;
+		padding: units(1.5) units(1);
+		font-size: font-size('body', 'md');
+		background: transparent;
+		border: 0;
+
+		&:focus {
+			outline: none;
+			box-shadow: none;
+		}
+
+		&::placeholder {
+			color: color('base');
+		}
+	}
+
+	&__voice-btn {
+		flex-shrink: 0;
+		padding: units(1);
+		color: color('base');
+		cursor: pointer;
+		background: transparent;
+		border: 0;
+		border-radius: radius('pill');
+		transition: background-color $transition, color $transition;
+
+		&:hover {
+			color: color('ink');
+			background: color('base-lightest');
+		}
+
+		.icon {
+			width: units(3);
+			height: units(3);
+
+			svg {
+				width: 100%;
+				height: 100%;
+			}
+		}
+	}
+
+	&__submit-btn {
+		flex-shrink: 0;
+		width: units(4);
+		height: units(4);
+		padding: 0;
+		cursor: pointer;
+		background: color('primary');
+		border: 0;
+		transition: background-color $transition, transform $transition;
+		mask-image: url('/icons/usa-icons/chat.svg');
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+
+		&:hover {
+			background: color('primary-dark');
+			transform: scale(1.1);
+		}
+
+		&:active {
+			transform: scale(0.95);
+		}
+
+		// Hide the icon element since we're using mask
+		.icon {
+			display: none;
+		}
+	}
+
+	&__submit-text {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	&__prompts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: units(1.5);
+		margin-top: units(2);
+		margin-bottom: units(3);
+	}
+
+	&__prompt {
+		margin: 0;
+		padding: units(1.5) units(2);
+		font-size: font-size('body', 'sm');
+		color: color('white');
+		cursor: pointer;
+		user-select: none;
+		background: color('primary');
+		border-radius: radius('md');
+		transition: background-color $transition, transform $transition;
+
+		&:hover {
+			background: color('primary-dark');
+			transform: translateY(-1px);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
+
+}
+
+// Hero context styling - when inside a hero section
+.hero .#{$block},
+.usa-hero .#{$block} {
+	margin-bottom: 0;
+
+	.#{$block}__prompt {
+		background: color('primary-darker');
+
+		&:hover {
+			background: color('primary-vivid');
+		}
+	}
+}
+

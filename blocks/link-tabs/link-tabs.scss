@@ -1,0 +1,294 @@
+@use '../../styles/ne-global-imports' as *;
+
+// Colors matching the DMV Nebraska theme
+$tab-active-color: #005f86;
+$tab-text-color: #005f86;
+$tab-border-color: #dfe1e2;
+$tab-hover-bg: rgba(0, 95, 134, 0.05);
+$content-bg: #fff;
+
+.link-tabs {
+  &-wrapper {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background-color: $content-bg;
+    border-radius: radius('md');
+    overflow: hidden;
+
+    @include at-media('tablet-lg') {
+      flex-direction: row;
+    }
+  }
+
+  // Mobile dropdown - visible on mobile only
+  &__mobile-dropdown {
+    display: block;
+    position: relative;
+    border-bottom: 1px solid $tab-border-color;
+
+    @include at-media('tablet-lg') {
+      display: none;
+    }
+  }
+
+  &__dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: units(2) units(2.5);
+    background-color: $content-bg;
+    border: none;
+    color: $tab-text-color;
+    font-family: family('heading');
+    font-size: size('body', 'md');
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus,
+    &:focus-visible {
+      outline: 2px solid $tab-active-color;
+      outline-offset: -2px;
+    }
+  }
+
+  &__dropdown-text {
+    flex: 1;
+  }
+
+  &__dropdown-icon {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid $tab-text-color;
+    transition: transform 0.2s ease;
+    margin-left: units(1);
+  }
+
+  &__mobile-dropdown--open {
+    .link-tabs__dropdown-icon {
+      transform: rotate(180deg);
+    }
+
+    .link-tabs__dropdown-menu {
+      display: block;
+    }
+  }
+
+  &__dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: $content-bg;
+    border: 1px solid $tab-border-color;
+    border-top: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  &__dropdown-item {
+    padding: units(2) units(2.5);
+    color: $tab-text-color;
+    font-family: family('heading');
+    font-size: size('body', 'sm');
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 1px solid $tab-border-color;
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: $tab-hover-bg;
+    }
+
+    &--active {
+      background-color: $tab-hover-bg;
+      border-left: 4px solid $tab-active-color;
+    }
+  }
+
+  // Tab list - hidden on mobile, vertical on desktop
+  &__list {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    @include at-media('tablet-lg') {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      width: 280px;
+      border-right: 1px solid $tab-border-color;
+    }
+
+    @include at-media('desktop') {
+      width: 320px;
+    }
+  }
+
+  &__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  &__tab {
+    display: block;
+    width: 100%;
+    padding: units(2) units(3);
+    background: transparent;
+    border: none;
+    border-left: 4px solid transparent;
+    color: $tab-text-color;
+    font-family: family('heading');
+    font-size: size('body', 'md');
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    // Reset paragraph styles inside tab
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    strong {
+      font-weight: bold;
+    }
+
+    &:hover {
+      background-color: $tab-hover-bg;
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+    }
+
+    &--active {
+      border-left-color: $tab-active-color;
+      background-color: $tab-hover-bg;
+    }
+  }
+
+  // Content area
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__panel {
+    display: none;
+    padding: units(3);
+
+    @include at-media('tablet-lg') {
+      padding: units(4);
+    }
+
+    &--active {
+      display: block;
+    }
+  }
+
+  // Panel content - 2 column layout
+  &__panel-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: units(3);
+
+    @include at-media('tablet') {
+      grid-template-columns: repeat(2, 1fr);
+      gap: units(4);
+    }
+
+    // Style the content sections
+    > ul {
+      display: contents; // Let list items flow into grid
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      > li {
+        break-inside: avoid;
+        list-style: none;
+
+        p {
+          margin: 0 0 units(1);
+
+          strong {
+            font-size: size('body', 'lg');
+            color: color('primary');
+          }
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            margin-bottom: units(0.5);
+
+            a {
+              color: color('primary');
+              text-decoration: underline;
+
+              &:hover {
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Images in content
+    picture,
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: units(2);
+    }
+
+    // Headings in content
+    h2, h3, h4 {
+      font-size: size('body', 'lg');
+      font-weight: bold;
+      color: color('primary');
+      margin: units(2) 0 units(1);
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    // Links styling
+    p {
+      margin: 0 0 units(1);
+
+      a {
+        display: block;
+        margin-bottom: units(0.5);
+      }
+    }
+  }
+}
