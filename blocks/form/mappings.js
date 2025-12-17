@@ -1,7 +1,7 @@
 import { loadCSS } from '../../scripts/aem.js';
 
 let customComponents = [];
-const OOTBComponentDecorators = ['file-input', 'wizard', 'horizontaltabs', 'modal', 'tnc', 'toggleable-link', 'rating', 'datetime', 'list', 'location', 'accordion', 'password'];
+const OOTBComponentDecorators = ['file-input', 'wizard', 'modal', 'tnc', 'toggleable-link', 'rating', 'datetime', 'list', 'location', 'accordion', 'password'];
 
 export function setCustomComponents( components ) {
 	customComponents = components;
@@ -64,10 +64,6 @@ export default async function componentDecorator( element, fd, container, formId
 
 	if ( type.endsWith( 'wizard' ) ) {
 		await loadComponent( 'wizard', element, fd, container, formId );
-	}
-
-	if ( type.endsWith( 'horizontaltabs' ) ) {
-		await loadComponent( 'horizontaltabs', element, fd, container, formId );
 	}
 
 	if ( getCustomComponents().includes( type ) || getOOTBComponents().includes( type ) ) {

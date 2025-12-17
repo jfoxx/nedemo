@@ -84,8 +84,8 @@ $uswds-block: 'usa-banner';
 		}
 	}
 
-	// Panel wrapper grid layout (but NOT for horizontal-tabs which has its own layout)
-	.panel-wrapper:not(.horizontal-tabs) {
+	// Panel wrapper grid layout (but NOT for wizard which has its own layout)
+	.panel-wrapper:not(.wizard) {
 		display: grid;
 		grid-template-columns: repeat(12, minmax(0, 1fr));
 		gap: 0 units(4);
@@ -118,7 +118,6 @@ $uswds-block: 'usa-banner';
 	.panel-wrapper[style*="grid-column"] > .field-wrapper,
 	.panel-wrapper[style*="grid-column"] > .panel-wrapper {
 		grid-column: span 12 !important;
-	}
 	}
 	
 	.usa-form,
@@ -153,6 +152,208 @@ $uswds-block: 'usa-banner';
 		
 		legend {
 			margin-top: 0 !important; // stylelint-disable-line declaration-no-important
+		}
+	}
+
+	// Wizard styling
+	.wizard {
+		display: grid;
+		counter-reset: wizard-step-counter;
+		grid-template-columns: minmax(0, 1fr);
+		gap: unset;
+		padding: units(2) 0;
+
+		// Hide the main wizard legend (screen-reader only)
+		> legend {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		// Hide non-current wizard steps
+		> fieldset:not(.current-wizard-step),
+		> .panel-wrapper:not(.current-wizard-step) {
+			display: none !important; // stylelint-disable-line declaration-no-important
+		}
+
+		// Legend inside steps should also be hidden (step titles shown in menu)
+		> fieldset > legend,
+		> .panel-wrapper > legend {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		// Wizard menu items (step indicators)
+		.wizard-menu-items {
+			position: relative;
+			display: flex;
+			justify-content: space-between;
+			list-style: none;
+			margin: 0 0 units(4) 0;
+			padding: 0;
+			font-weight: font-weight("bold");
+			grid-column: span 12;
+
+			// Connecting line behind the steps
+			// Position: padding(2) + half of circle(2) = 4 units from top of box
+			&::before {
+				content: "";
+				position: absolute;
+				top: calc(#{units(2)} + #{units(2)}); // padding + half circle height
+				left: units(2); // Start from center of first circle
+				right: units(2); // End at center of last circle
+				height: 2px;
+				background: color("base-lighter");
+				z-index: 0;
+			}
+		}
+
+		.wizard-menu-item {
+			position: relative;
+			z-index: 1; // Above the connecting line
+			counter-increment: wizard-step-counter;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: units(1);
+			background: color("white"); // Hide line behind text
+			border: 2px solid color("base-lighter");
+			border-radius: units(1);
+			padding: units(2) units(2);
+
+			// Future steps are gray
+			color: color("base");
+
+			// Step number circle
+			&::before {
+				content: counter(wizard-step-counter);
+				display: flex;
+				flex-shrink: 0;
+				align-items: center;
+				justify-content: center;
+				width: units(4);
+				height: units(4);
+				border: 2px solid color("base"); // Gray for future steps
+				border-radius: 50%;
+				background: color("white");
+				color: color("base"); // Gray for future steps
+				font-weight: font-weight("bold");
+			}
+
+			&[data-visible="false"] {
+				display: none;
+			}
+		}
+
+		// Active step - primary color
+		.wizard-menu-active-item {
+			color: color("base-darkest"); // Dark text for active
+
+			&::before {
+				border-color: color("primary");
+				background: color("primary");
+				color: color("white");
+			}
+		}
+
+		// Completed steps (before active) get filled circle and dark text
+		.wizard-menu-item:has(~ .wizard-menu-active-item) {
+			color: color("base-darkest"); // Dark text for completed
+
+			&::before {
+				border-color: color("primary");
+				background: color("primary");
+				color: color("white");
+			}
+		}
+
+		// Mobile responsive styles for wizard menu
+		@media (max-width: 768px) {
+			.wizard-menu-items {
+				gap: units(0.5);
+
+				// Adjust connecting line for smaller circles
+				&::before {
+					top: calc(#{units(1)} + #{units(1.5)}); // Smaller padding + half smaller circle
+				}
+			}
+
+			.wizard-menu-item {
+				padding: units(1);
+				font-size: font-size("body", "3xs");
+
+				// Hide labels on non-active steps
+				&:not(.wizard-menu-active-item) {
+					// Hide the text content but keep the number
+					font-size: 0; // Hides the text
+
+					&::before {
+						font-size: font-size("body", "2xs"); // Restore number size
+					}
+				}
+
+				// Smaller circles on mobile
+				&::before {
+					width: units(3);
+					height: units(3);
+					font-size: font-size("body", "2xs");
+				}
+			}
+
+			// Active step still shows label
+			.wizard-menu-active-item {
+				font-size: font-size("body", "3xs");
+			}
+		}
+
+		// Wizard navigation buttons
+		.wizard-button-wrapper {
+			display: flex;
+			justify-content: flex-end;
+			gap: units(4);
+			margin-top: units(3);
+			width: 100%;
+			grid-column: span 12;
+
+			.field-wrapper {
+				flex: unset;
+			}
+
+			// Disabled button styles
+			button:disabled,
+			button[disabled] {
+				opacity: 0.5;
+				cursor: not-allowed;
+				pointer-events: none;
+			}
+
+			// Back button when hidden (first step)
+			.wizard-button-prev[style*="visibility: hidden"] {
+				width: 0;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+			}
+		}
+
+		// Current step should display as grid for column layout
+		> .current-wizard-step {
+			display: grid !important; // stylelint-disable-line declaration-no-important
+			grid-template-columns: repeat(12, minmax(0, 1fr));
+			gap: 0 units(4);
 		}
 	}
 }
