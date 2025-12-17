@@ -24,6 +24,15 @@ export default function decorate( block ) {
 
 	const backgroundImg = block.querySelector( 'picture' );
 
+	// Apply high fetch priority to hero image for better LCP
+	if ( backgroundImg ) {
+		const img = backgroundImg.querySelector( 'img' );
+		if ( img ) {
+			img.setAttribute( 'fetchpriority', 'high' );
+			img.setAttribute( 'loading', 'eager' );
+		}
+	}
+
 	const h1 = block.querySelector( 'h1' );
 	if ( h1 ) {
 		h1.classList.add( 'usa-hero__heading' );
