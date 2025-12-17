@@ -203,7 +203,7 @@ in the form $setting: value,
 	$theme-global-paragraph-styles: true,
 	$theme-global-link-styles: true,
 	$theme-global-content-styles: true,
-	$theme-text-measure: 6, // 88ex
+	$theme-text-measure: none, // Remove max-width on text content
 	
 	$theme-body-background-color: 'primary-lightest',
 

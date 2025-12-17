@@ -1,0 +1,27 @@
+{
+  "definitions": [
+    {
+      "title": "Horizontal Tabs",
+      "id": "horizontaltabs",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "foxx/components/adaptiveForm/horizontaltabs",
+            "template": {
+              "fieldType": "panel",
+              "name": "horizontaltabs",
+              ":type": "foxx/components/adaptiveForm/horizontaltabs"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "horizontaltabs",
+      "fields": []
+    }
+  ]
+}
+

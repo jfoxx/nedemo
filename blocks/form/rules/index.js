@@ -24,9 +24,24 @@ import {
 import registerCustomFunctions from './functionRegistration.js';
 import { externalize } from './functions.js';
 import initializeRuleEngineWorker from './worker.js';
-import { createOptimizedPicture } from '../../../scripts/aem.js';
-
 const formSubscriptions = {};
+
+/**
+ * Resolves image paths, prepending AEM publish URL for absolute DAM/content paths
+ * @param {string} path - The image path
+ * @returns {string} - The resolved full URL
+ */
+function resolveAemImagePath(path) {
+  if (!path) return '';
+
+  // If path starts with /content/ (AEM absolute path), prepend the publish URL
+  if (path.startsWith('/content/')) {
+    const aemPublishUrl = window.aemPublishUrl || 'https://publish-p49252-e308251.adobeaemcloud.com';
+    return `${aemPublishUrl}${path}`;
+  }
+
+  return path;
+}
 
 function disableElement(el, value) {
   el.toggleAttribute('disabled', value === true);
@@ -106,8 +121,18 @@ async function fieldChanged(payload, form, generateFormRendition) {
         } else if (fieldType === 'plain-text') {
           field.innerHTML = currentValue;
         } else if (fieldType === 'image') {
-          const altText = field?.querySelector('img')?.alt || '';
-          field.querySelector('picture')?.replaceWith(createOptimizedPicture(field, currentValue, altText));
+          const existingImg = field?.querySelector('img');
+          const altText = existingImg?.alt || '';
+          const resolvedPath = resolveAemImagePath(currentValue);
+          if (existingImg) {
+            existingImg.src = resolvedPath;
+          } else {
+            const newImg = document.createElement('img');
+            newImg.src = resolvedPath;
+            newImg.alt = altText;
+            newImg.loading = 'lazy';
+            field.append(newImg);
+          }
         } else if (field.type !== 'file') {
           field.value = currentValue;
         }
