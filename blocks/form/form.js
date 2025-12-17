@@ -1,4 +1,3 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
 import transferRepeatableDOM, { insertAddButton, insertRemoveButton } from './components/repeat/repeat.js';
 import { emailPattern, getSubmitBaseUrl, SUBMISSION_SERVICE } from './constant.js';
 import GoogleReCaptcha from './integrations/recaptcha.js';
@@ -19,6 +18,45 @@ import {
 export const DELAY_MS = 0;
 let captchaField;
 let afModule;
+
+// Store for original columnClassNames from form definition (before rule engine transforms it)
+let originalColumnClassNames = {};
+
+/**
+ * Extracts columnClassNames from all panels in the original form definition
+ * and stores them keyed by panel id for later use during rendering.
+ * The rule engine's getState() strips these out, so we need to preserve them.
+ */
+function extractColumnClassNames( formDef ) {
+	const columnMap = {};
+
+	const traverse = ( obj ) => {
+		if ( !obj ) return;
+
+		// Store columnClassNames for panels, keyed by panel id
+		if ( obj.fieldType === 'panel' && obj.columnClassNames && obj.id ) {
+			columnMap[obj.id] = obj.columnClassNames;
+		}
+
+		// Also check for form-level columnClassNames
+		if ( obj.fieldType === 'form' && obj.columnClassNames && obj.id ) {
+			columnMap[obj.id] = obj.columnClassNames;
+		}
+
+		// Traverse children - handle both :items/:itemsOrder and items array formats
+		if ( obj[':itemsOrder'] && obj[':items'] ) {
+			obj[':itemsOrder'].forEach( ( key ) => {
+				traverse( obj[':items'][key] );
+			} );
+		}
+		if ( obj.items && Array.isArray( obj.items ) ) {
+			obj.items.forEach( ( item ) => traverse( item ) );
+		}
+	};
+
+	traverse( formDef );
+	return columnMap;
+}
 
 const withFieldWrapper = ( element ) => ( fd ) => {
 	const wrapper = createFieldWrapper( fd );
@@ -70,6 +108,7 @@ const createTextArea = withFieldWrapper( ( fd ) => {
 
 const createSelect = withFieldWrapper( ( fd ) => {
 	const select = document.createElement( 'select' );
+	select.classList.add( 'usa-select' ); // Add USWDS select styling
 	select.required = fd.required;
 	select.title = fd.tooltip ? stripTags( fd.tooltip, '' ) : '';
 	select.readOnly = fd.readOnly;
@@ -143,6 +182,14 @@ function createRadioOrCheckbox( fd ) {
 	if ( typeof uncheckedValue !== 'undefined' ) {
 		input.dataset.uncheckedValue = uncheckedValue;
 	}
+
+	// Add USWDS classes for proper styling (visually hides native input, styled via label :before)
+	if ( fd.fieldType === 'checkbox' ) {
+		input.classList.add( 'usa-checkbox__input' );
+	} else if ( fd.fieldType === 'radio' ) {
+		input.classList.add( 'usa-radio__input' );
+	}
+
 	wrapper.insertAdjacentElement( 'afterbegin', input );
 	return wrapper;
 }
@@ -255,12 +302,41 @@ function createPlainText( fd ) {
 	return wrapper;
 }
 
+/**
+ * Resolves image paths, prepending AEM publish URL for absolute DAM/content paths
+ * @param {string} path - The image path
+ * @returns {string} - The resolved full URL
+ */
+function resolveAemImagePath( path ) {
+	if ( !path ) return '';
+
+	// If path starts with /content/ (AEM absolute path), prepend the publish URL
+	if ( path.startsWith( '/content/' ) ) {
+		const aemPublishUrl = window.aemPublishUrl || 'https://publish-p49252-e308251.adobeaemcloud.com';
+		return `${aemPublishUrl}${path}`;
+	}
+
+	return path;
+}
+
+/**
+ * Creates an image element for AEM form images.
+ * These images come directly from the AEM publish server, not Edge Delivery.
+ */
 function createImage( fd ) {
 	const field = createFieldWrapper( fd );
 	field.id = fd?.id;
-	const imagePath = fd.value || fd.properties['fd:repoPath'] || '';
+	const imagePath = fd.value || fd.properties?.['fd:repoPath'] || '';
+	const resolvedPath = resolveAemImagePath( imagePath );
 	const altText = fd.altText || fd.name;
-	field.append( createOptimizedPicture( imagePath, altText ) );
+
+	// Create a simple img element - these are AEM-hosted images, not Edge Delivery
+	const img = document.createElement( 'img' );
+	img.src = resolvedPath;
+	img.alt = altText;
+	img.loading = 'lazy';
+
+	field.append( img );
 	return field;
 }
 
@@ -278,11 +354,145 @@ const fieldRenderers = {
 	heading: createHeading,
 };
 
-function colSpanDecorator( field, element ) {
+/**
+ * Parses AEM Grid column classes and extracts span and offset values
+ * @param {string} aemGridClasses - e.g., "aem-GridColumn aem-GridColumn--default--6 aem-GridColumn--offset--default--2"
+ * @returns {{ span: number|null, offset: number|null }}
+ */
+function parseAemGridClasses( aemGridClasses ) {
+	if ( !aemGridClasses ) return { span: null, offset: null };
+
+	let span = null;
+	let offset = null;
+
+	// Match span: aem-GridColumn--default--{number}
+	const spanMatch = aemGridClasses.match( /aem-GridColumn--default--(\d+)/ );
+	if ( spanMatch ) {
+		span = parseInt( spanMatch[1], 10 );
+	}
+
+	// Match offset: aem-GridColumn--offset--default--{number}
+	const offsetMatch = aemGridClasses.match( /aem-GridColumn--offset--default--(\d+)/ );
+	if ( offsetMatch ) {
+		offset = parseInt( offsetMatch[1], 10 );
+	}
+
+	return { span, offset };
+}
+
+/**
+ * Finds matching columnClassNames for a field by trying multiple matching strategies
+ * columnClassNames keys are item keys (e.g., "radiobutton") while field.name may be different
+ * (e.g., "radiobutton1765907004117")
+ */
+function findColumnClassNames( field, columnClassNames ) {
+	if ( !columnClassNames || Object.keys( columnClassNames ).length === 0 ) {
+		return null;
+	}
+
+	const fieldName = field.name || '';
+	const fieldId = field.id || '';
+
+	// Normalize a string by removing separators for comparison
+	const normalize = ( str ) => str.replace( /[-_]/g, '' );
+	const normalizedFieldName = normalize( fieldName );
+
+	// Strategy 1: Exact match on field name
+	if ( columnClassNames[fieldName] ) {
+		return columnClassNames[fieldName];
+	}
+
+	// Strategy 2: Extract key's ID portion and check if field name contains it
+	// columnClassNames keys like "panelcontainer_1841561611" should match
+	// field names like "panelcontainer-18415616111765922920829"
+	// Sort keys by specificity (longer keys first) to prefer more specific matches
+	const sortedKeys = Object.keys( columnClassNames ).sort( ( a, b ) => b.length - a.length );
+
+	for ( const key of sortedKeys ) {
+		const normalizedKey = normalize( key );
+
+		// Check if normalized field name starts with or contains the normalized key
+		if ( normalizedFieldName.startsWith( normalizedKey ) ) {
+			return columnClassNames[key];
+		}
+
+		// Also extract the numeric suffix from the key and check if it appears in the field name
+		// e.g., key "panelcontainer_1841561611" has suffix "1841561611"
+		const keyParts = key.split( /[-_]/ );
+		if ( keyParts.length > 1 ) {
+			const keySuffix = keyParts[keyParts.length - 1];
+			// Check if this suffix appears at the right position in the field name
+			const fieldParts = fieldName.split( /[-_]/ );
+			if ( fieldParts.length > 1 ) {
+				const fieldSuffix = fieldParts[fieldParts.length - 1];
+				// Check if field suffix starts with key suffix (allows for timestamp appended)
+				if ( fieldSuffix.startsWith( keySuffix ) ) {
+					return columnClassNames[key];
+				}
+			}
+		}
+	}
+
+	// Strategy 3: Check if field ID contains the key
+	// (e.g., id "radiobutton-d0de3c0086" contains "radiobutton")
+	for ( const key of sortedKeys ) {
+		if ( fieldId.includes( key ) ) {
+			return columnClassNames[key];
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Applies column span and positioning to a field element.
+ * Tracks current column position to correctly handle offsets as relative gaps.
+ * @param {Object} field - The field definition
+ * @param {HTMLElement} element - The field wrapper element
+ * @param {Object} columnClassNames - Map of field names to AEM grid classes
+ * @param {number} currentCol - Current column position (1-based)
+ * @returns {number} - The new column position after this field
+ */
+function colSpanDecorator( field, element, columnClassNames, currentCol = 1 ) {
+	const GRID_COLUMNS = 12;
+
+	// First check for AEM grid classes from parent panel's columnClassNames
+	const aemGridClasses = findColumnClassNames( field, columnClassNames );
+
+	if ( aemGridClasses ) {
+		const { span, offset } = parseAemGridClasses( aemGridClasses );
+		const effectiveSpan = span || GRID_COLUMNS;
+		const effectiveOffset = offset || 0;
+
+		// Calculate actual start position: current position + offset
+		let startCol = currentCol + effectiveOffset;
+
+		// Check if this element would overflow the row
+		if ( startCol + effectiveSpan > GRID_COLUMNS + 1 ) {
+			// Start a new row
+			startCol = 1 + effectiveOffset;
+		}
+
+		// Set the grid-column with explicit start and span
+		if ( effectiveOffset > 0 || startCol > 1 ) {
+			element.style.gridColumn = `${startCol} / span ${effectiveSpan}`;
+		} else {
+			element.classList.add( `col-${effectiveSpan}` );
+		}
+
+		// Return new column position
+		return startCol + effectiveSpan;
+	}
+
+	// Fallback to legacy Column Span property
 	const colSpan = field['Column Span'] || field.properties?.colspan;
 	if ( colSpan && element ) {
 		element.classList.add( `col-${colSpan}` );
+		return currentCol + parseInt( colSpan, 10 );
 	}
+
+	// Default: full width
+	return 1; // Reset to start of next row
 }
 
 const handleFocus = ( input, field ) => {
@@ -354,7 +564,10 @@ function inputDecorator( field, element ) {
 		if ( input.type === 'textarea' ) {
 			input.classList.add( 'usa-textarea' );
 		}
-		input.classList.add( 'usa-input' );
+		// Don't add usa-input class to checkboxes and radio buttons - they have their own styling
+		if ( input.type !== 'checkbox' && input.type !== 'radio' ) {
+			input.classList.add( 'usa-input' );
+		}
 		
 		setConstraintsMessage( element, field.constraintMessages );
 		element.dataset.required = field.required;
@@ -394,6 +607,16 @@ function decoratePanelContainer( panelDefinition, panelContainer ) {
 }
 
 function renderField( fd ) {
+	// Skip rendering if field has no proper name or id (invalid field definition)
+	if ( !fd || ( !fd.name && !fd.id && !fd.fieldType ) ) {
+		return null;
+	}
+
+	// Skip hidden fields - they don't need to be rendered
+	if ( fd.fieldType === 'hidden' ) {
+		return null;
+	}
+
 	const fieldType = fd?.fieldType?.replace( '-input', '' ) ?? 'text';
 	const renderer = fieldRenderers[fieldType];
 	let field;
@@ -413,32 +636,74 @@ function renderField( fd ) {
 	return field;
 }
 
-export async function generateFormRendition( panel, container, formId, getItems = ( p ) => p?.items ) {
+/**
+ * Checks if a panel is constrained to a small column width (less than 12 columns).
+ * When true, children should be full width within the panel.
+ */
+function isPanelColumnConstrained( panelId, parentColumnClassNames ) {
+	const colDef = findColumnClassNames( { id: panelId, name: panelId }, parentColumnClassNames );
+	if ( colDef ) {
+		const { span } = parseAemGridClasses( colDef );
+		// If the panel spans less than 12 columns, it's constrained
+		return span && span < 12;
+	}
+	return false;
+}
+
+export async function generateFormRendition( panel, container, formId, getItems = ( p ) => p?.items, parentColumnClassNames = null ) {
 	const items = getItems( panel ) || [];
-	const promises = items.map( async ( field ) => {
+	// Get columnClassNames - first check the preserved original, then fall back to panel property
+	// The rule engine's getState() strips columnClassNames, so we use the original form definition
+	let columnClassNames = originalColumnClassNames[panel.id] || panel.columnClassNames || {};
+
+	// Check if this panel is column-constrained (spans less than 12 columns in its parent)
+	// If so, children should be full width within this panel - don't apply their column classes
+	if ( parentColumnClassNames && isPanelColumnConstrained( panel.id || panel.name, parentColumnClassNames ) ) {
+		columnClassNames = {}; // Make children full width
+	}
+
+	// Track current column position for proper offset handling
+	let currentCol = 1;
+	const children = [];
+
+	// Process items sequentially to correctly track column positions
+	for ( const field of items ) {
 		field.value = field.value ?? '';
 		const { fieldType } = field;
+
+		let element;
 		if ( fieldType === 'captcha' ) {
 			captchaField = field;
-			const element = createFieldWrapper( field );
+			element = createFieldWrapper( field );
 			element.textContent = 'CAPTCHA';
-			return element;
-		}
-		const element = renderField( field );
-		if ( field.appliedCssClassNames ) {
-			element.className += ` ${field.appliedCssClassNames}`;
-		}
-		colSpanDecorator( field, element );
-		if ( field?.fieldType === 'panel' ) {
-			await generateFormRendition( field, element, formId, getItems );
-			return element;
-		}
-		await componentDecorator( element, field, container, formId );
-		return element;
-	} );
+		} else {
+			element = renderField( field );
+			// Skip if renderField returned null (invalid or hidden field)
+			if ( !element ) {
+				continue;
+			}
+			if ( field.appliedCssClassNames ) {
+				element.className += ` ${field.appliedCssClassNames}`;
+			}
+			// Apply column span and get new column position
+			currentCol = colSpanDecorator( field, element, columnClassNames, currentCol );
 
-	const children = await Promise.all( promises );
-	container.append( ...children.filter( ( _ ) => _ != null ) );
+			// Recursively render panels and container components that have items
+			const hasItems = getItems( field )?.length > 0;
+			if ( field?.fieldType === 'panel' || hasItems ) {
+				// Pass current columnClassNames as parent for child panels to check if they're constrained
+				await generateFormRendition( field, element, formId, getItems, columnClassNames );
+			} else {
+				await componentDecorator( element, field, container, formId );
+			}
+		}
+
+		if ( element ) {
+			children.push( element );
+		}
+	}
+
+	container.append( ...children );
 	decoratePanelContainer( panel, container );
 	await componentDecorator( container, panel, null, formId );
 }
@@ -455,15 +720,121 @@ function enableValidation( form ) {
 	} );
 }
 
+/**
+ * Sets up dynamic plate preview functionality
+ * When user types in the plate message field, updates the plate image
+ * with Dynamic Media URL including the message parameter
+ */
+function setupDynamicPlatePreview( form ) {
+	// Base Dynamic Media URL for plate preview (message goes between $message= and &wid)
+	const baseDmUrl = 'https://s7d1.scene7.com/is/image/JeffFoxxNA001/license%20plate?$message=&wid=2000&hei=2000&qlt=100&fit=constrain';
+
+	// Store the current plate message so it can be applied to all preview images
+	let currentPlateMessage = '';
+
+	// Build the Dynamic Media URL with the message
+	const buildDmUrl = ( message ) => {
+		const encodedMessage = encodeURIComponent( message );
+		return `https://s7d1.scene7.com/is/image/JeffFoxxNA001/license%20plate?$message=${encodedMessage}&wid=2000&hei=2000&qlt=100&fit=constrain`;
+	};
+
+	// Find all plate preview images in the form (on tabs 3, 4, and 5)
+	const findAllPlateImages = () => {
+		// Get all tab panels
+		const tabPanels = form.querySelectorAll( '.tab-panel' );
+		const plateImages = [];
+
+		tabPanels.forEach( ( panel, index ) => {
+			// Tabs 3, 4, and 5 are indices 2, 3, and 4 (0-based)
+			if ( index >= 2 ) {
+				const img = panel.querySelector( 'img' );
+				if ( img ) {
+					plateImages.push( img );
+				}
+			}
+		} );
+
+		return plateImages;
+	};
+
+	// Update all plate preview images with the current message
+	const updateAllPlateImages = () => {
+		const plateImages = findAllPlateImages();
+		const dmUrl = buildDmUrl( currentPlateMessage );
+
+		plateImages.forEach( ( img ) => {
+			// Store original src if not already stored
+			if ( !img.dataset.dmPreviewEnabled ) {
+				img.dataset.originalSrc = img.src;
+				img.dataset.dmPreviewEnabled = 'true';
+			}
+			img.src = dmUrl;
+		} );
+	};
+
+	// Handler for input events - updates the message and all images
+	const updatePlatePreview = ( event ) => {
+		const input = event.target;
+
+		// Convert to uppercase and store
+		currentPlateMessage = input.value.toUpperCase().trim();
+
+		// Update all plate images across tabs 3, 4, and 5
+		updateAllPlateImages();
+	};
+
+	// Use event delegation on the form to capture events from the platemessage field
+	// This works even if the field isn't visible initially
+	form.addEventListener( 'input', ( event ) => {
+		const target = event.target;
+		if ( target.name && target.name.toLowerCase().includes( 'platemessage' ) ) {
+			updatePlatePreview( event );
+		}
+	} );
+
+	form.addEventListener( 'keyup', ( event ) => {
+		const target = event.target;
+		if ( target.name && target.name.toLowerCase().includes( 'platemessage' ) ) {
+			updatePlatePreview( event );
+		}
+	} );
+
+	// Also update images when tabs are clicked (in case they weren't updated yet)
+	form.addEventListener( 'click', ( event ) => {
+		const tabButton = event.target.closest( '.tab-item, [role="tab"]' );
+		if ( tabButton && currentPlateMessage ) {
+			// Small delay to let tab switch complete
+			setTimeout( updateAllPlateImages, 100 );
+		}
+	} );
+
+	// Also handle focus to initialize all images when user first clicks in the field
+	form.addEventListener( 'focus', ( event ) => {
+		const target = event.target;
+		if ( target.name && target.name.toLowerCase().includes( 'platemessage' ) ) {
+			// Initialize all plate images with base URL
+			updateAllPlateImages();
+		}
+	}, true ); // Use capture phase to get focus events
+}
+
 async function createFormForAuthoring( formDef ) {
 	const form = document.createElement( 'form' );
-	await generateFormRendition( formDef, form, formDef.id, ( container ) => {
-		if ( container[':itemsOrder'] && container[':items'] ) {
-			return container[':itemsOrder'].map( ( itemKey ) => container[':items'][itemKey] );
-		}
-		return [];
-	} );
+	await generateFormRendition( formDef, form, formDef.id, getAemFormItems );
 	return form;
+}
+
+/**
+ * Custom getItems function for AEM Adaptive Forms that handles both
+ * standard `items` property and AEM's `:items` / `:itemsOrder` notation
+ */
+function getAemFormItems( container ) {
+	// First check for AEM notation with :items and :itemsOrder
+	if ( container[':itemsOrder'] && container[':items'] ) {
+		return container[':itemsOrder'].map( ( itemKey ) => container[':items'][itemKey] );
+	}
+	// Fallback to standard items array
+	return container?.items || [];
 }
 
 export async function createForm( formDef, data ) {
@@ -476,7 +847,7 @@ export async function createForm( formDef, data ) {
 		form.className = formDef.appliedCssClassNames;
 	}
 	const formId = extractIdFromUrl( formPath ); // formDef.id returns $form after getState()
-	await generateFormRendition( formDef, form, formId );
+	await generateFormRendition( formDef, form, formId, getAemFormItems );
 
 	let captcha;
 	if ( captchaField ) {
@@ -495,6 +866,7 @@ export async function createForm( formDef, data ) {
 
 	enableValidation( form );
 	transferRepeatableDOM( form );
+	setupDynamicPlatePreview( form );
 
 	if ( afModule ) {
 		window.setTimeout( async () => {
@@ -588,6 +960,13 @@ export async function fetchForm( pathname ) {
 			}
 		} );
 	}
+
+	// Extract and store columnClassNames from original form definition
+	// before the rule engine transforms it (which strips these properties)
+	if ( data ) {
+		originalColumnClassNames = extractColumnClassNames( data );
+	}
+
 	return data;
 }
 

@@ -17,64 +17,108 @@ $uswds-block: 'usa-banner';
 		display: grid;
 		grid-template-columns: repeat(12, minmax(0, 1fr));
 		gap: 0 units(4);
+		max-width: none; // Override USWDS default max-width constraint
+	}
+	
+	// Remove USWDS max-width constraints on form elements
+	.usa-label,
+	.usa-legend,
+	.usa-input,
+	.usa-select,
+	.usa-textarea,
+	.usa-combo-box,
+	.usa-file-input,
+	p {
+		max-width: none;
+	}
+
+	// Hide all legend elements in the form
+	legend,
+	.usa-legend {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	// Hide fields that are marked as not visible
+	[data-visible="false"] {
+		display: none !important;
 	}
 	
 	/* grid css */
 	.field-wrapper {
 		grid-column: span 12;
 
-		&.col-1 {
-			grid-column: span 1;
+		// Column spans
+		@for $i from 1 through 12 {
+			&.col-#{$i} {
+				grid-column: span #{$i};
+			}
 		}
 
-		&.col-2 {
-			grid-column: span 2;
+		// Column offsets (using grid-column-start)
+		@for $i from 1 through 11 {
+			&.col-offset-#{$i} {
+				grid-column-start: #{$i + 1};
+			}
 		}
 
-		&.col-3 {
-			grid-column: span 3;
-		}
-
-		&.col-4 {
-			grid-column: span 4;
-		}
-
-		&.col-5 {
-			grid-column: span 5;
-		}
-
-		&.col-6 {
-			grid-column: span 6;
-		}
-
-		&.col-7 {
-			grid-column: span 7;
-		}
-
-		&.col-8 {
-			grid-column: span 8;
-		}
-
-		&.col-9 {
-			grid-column: span 9;
-		}
-
-		&.col-10 {
-			grid-column: span 10;
-		}
-
-		&.col-11 {
-			grid-column: span 11;
-		}
-
-		&.col-12 {
-			grid-column: span 12;
+		// Combined span and offset
+		@for $offset from 1 through 11 {
+			@for $span from 1 through 12 - $offset {
+				&.col-offset-#{$offset}.col-#{$span} {
+					grid-column: #{$offset + 1} / span #{$span};
+				}
+			}
 		}
 		
 		button {
 			width: 100%;
 			max-width: fit-content
 		}
+	}
+
+	// Panel wrapper grid layout (but NOT for horizontal-tabs which has its own layout)
+	.panel-wrapper:not(.horizontal-tabs) {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 0 units(4);
+
+		// Column spans for nested panels
+		@for $i from 1 through 12 {
+			&.col-#{$i} {
+				grid-column: span #{$i};
+			}
+		}
+
+		// Column offsets for nested panels
+		@for $i from 1 through 11 {
+			&.col-offset-#{$i} {
+				grid-column-start: #{$i + 1};
+			}
+		}
+
+		// When a panel is column-constrained (col-1 through col-11, or has inline grid-column style),
+		// make all children full width within that panel - the inner grid should be 100% of the panel
+		@for $i from 1 through 11 {
+			&.col-#{$i} > .field-wrapper,
+			&.col-#{$i} > .panel-wrapper {
+				grid-column: span 12 !important;
+			}
+		}
+	}
+
+	// Panels with inline grid-column style (set via JS) should also have full-width children
+	.panel-wrapper[style*="grid-column"] > .field-wrapper,
+	.panel-wrapper[style*="grid-column"] > .panel-wrapper {
+		grid-column: span 12 !important;
+	}
 	}
 	
 	.usa-form,
