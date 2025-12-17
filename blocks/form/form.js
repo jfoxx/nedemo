@@ -726,9 +726,6 @@ function enableValidation( form ) {
  * with Dynamic Media URL including the message parameter
  */
 function setupDynamicPlatePreview( form ) {
-	// Base Dynamic Media URL for plate preview (message goes between $message= and &wid)
-	const baseDmUrl = 'https://s7d1.scene7.com/is/image/JeffFoxxNA001/license%20plate?$message=&wid=2000&hei=2000&qlt=100&fit=constrain';
-
 	// Store the current plate message so it can be applied to all preview images
 	let currentPlateMessage = '';
 
@@ -738,21 +735,40 @@ function setupDynamicPlatePreview( form ) {
 		return `https://s7d1.scene7.com/is/image/JeffFoxxNA001/license%20plate?$message=${encodedMessage}&wid=2000&hei=2000&qlt=100&fit=constrain`;
 	};
 
-	// Find all plate preview images in the form (on tabs 3, 4, and 5)
+	// Find all plate preview images in the form (on wizard steps 3, 4, and 5)
 	const findAllPlateImages = () => {
-		// Get all tab panels
-		const tabPanels = form.querySelectorAll( '.tab-panel' );
+		// For wizard: Get all wizard steps (fieldset.panel-wrapper children of .wizard)
+		const wizard = form.querySelector( '.wizard' );
 		const plateImages = [];
 
-		tabPanels.forEach( ( panel, index ) => {
-			// Tabs 3, 4, and 5 are indices 2, 3, and 4 (0-based)
-			if ( index >= 2 ) {
-				const img = panel.querySelector( 'img' );
-				if ( img ) {
-					plateImages.push( img );
+		if ( wizard ) {
+			// Get wizard steps (direct fieldset children)
+			const steps = [...wizard.children].filter(
+				( child ) => child.tagName === 'FIELDSET' && child.classList.contains( 'panel-wrapper' ),
+			);
+
+			steps.forEach( ( step, index ) => {
+				// Steps 3, 4, and 5 are indices 2, 3, and 4 (0-based)
+				if ( index >= 2 ) {
+					// Find all images in this step
+					const images = step.querySelectorAll( 'img' );
+					images.forEach( ( img ) => {
+						plateImages.push( img );
+					} );
 				}
-			}
-		} );
+			} );
+		} else {
+			// Fallback for tab-based layout (kept for backwards compatibility)
+			const tabPanels = form.querySelectorAll( '.tab-panel' );
+			tabPanels.forEach( ( panel, index ) => {
+				if ( index >= 2 ) {
+					const img = panel.querySelector( 'img' );
+					if ( img ) {
+						plateImages.push( img );
+					}
+				}
+			} );
+		}
 
 		return plateImages;
 	};
@@ -779,7 +795,7 @@ function setupDynamicPlatePreview( form ) {
 		// Convert to uppercase and store
 		currentPlateMessage = input.value.toUpperCase().trim();
 
-		// Update all plate images across tabs 3, 4, and 5
+		// Update all plate images across steps 3, 4, and 5
 		updateAllPlateImages();
 	};
 
@@ -799,11 +815,20 @@ function setupDynamicPlatePreview( form ) {
 		}
 	} );
 
-	// Also update images when tabs are clicked (in case they weren't updated yet)
+	// Update images when wizard navigates (listen for wizard:navigate event)
+	form.addEventListener( 'wizard:navigate', () => {
+		if ( currentPlateMessage ) {
+			// Small delay to let step switch complete
+			setTimeout( updateAllPlateImages, 100 );
+		}
+	} );
+
+	// Also update images when wizard buttons are clicked
 	form.addEventListener( 'click', ( event ) => {
+		const wizardButton = event.target.closest( '.wizard-button-prev, .wizard-button-next' );
 		const tabButton = event.target.closest( '.tab-item, [role="tab"]' );
-		if ( tabButton && currentPlateMessage ) {
-			// Small delay to let tab switch complete
+		if ( ( wizardButton || tabButton ) && currentPlateMessage ) {
+			// Small delay to let step/tab switch complete
 			setTimeout( updateAllPlateImages, 100 );
 		}
 	} );

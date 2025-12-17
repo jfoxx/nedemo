@@ -13,6 +13,16 @@ export class WizardLayout {
 		return [...panel.children].filter( ( step ) => step.tagName.toLowerCase() === 'fieldset' );
 	}
 
+	/**
+	 * Get visible steps only (excluding hidden ones)
+	 */
+	// eslint-disable-next-line class-methods-use-this
+	getVisibleSteps( panel ) {
+		return [...panel.children].filter(
+			( step ) => step.tagName.toLowerCase() === 'fieldset' && step.dataset.visible !== 'false',
+		);
+	}
+
 	assignIndexToSteps( panel ) {
 		const steps = this.getSteps( panel );
 		panel.style.setProperty( '--wizard-step-count', steps.length );
@@ -35,13 +45,81 @@ export class WizardLayout {
 	}
 
 	/**
+	 * Check if current step is valid (all visible required fields are filled)
+	 * This doesn't show validation messages, just checks validity
+	 */
+	isCurrentStepValid( container ) {
+		const fieldElements = [...container.querySelectorAll( this.inputFields )];
+		return fieldElements.every( ( fieldElement ) => {
+			const isHidden = this.isElementOrAncestorHidden( fieldElement, container );
+			return isHidden || fieldElement.checkValidity();
+		} );
+	}
+
+	/**
+	 * Update the enabled/disabled state of wizard navigation buttons
+	 */
+	updateButtonStates( panel ) {
+		const current = panel.querySelector( '.current-wizard-step' );
+		if ( !current ) return;
+
+		const prevBtn = panel.querySelector( '.wizard-button-prev' );
+		const nextBtn = panel.querySelector( '.wizard-button-next' );
+
+		// Check if we can go back (is there a previous visible step?)
+		const hasPrevStep = this.getEligibleSibling( current, false ) !== null;
+
+		// Check if we can go forward (is there a next visible step?)
+		const hasNextStep = this.getEligibleSibling( current, true ) !== null;
+
+		// Check if current step is valid
+		const isValid = this.isCurrentStepValid( current );
+
+		// Update Back button
+		if ( prevBtn ) {
+			prevBtn.disabled = !hasPrevStep;
+			prevBtn.style.visibility = hasPrevStep ? 'visible' : 'hidden';
+		}
+
+		// Update Next button - disabled if no next step OR if current step is invalid
+		if ( nextBtn ) {
+			if ( !hasNextStep ) {
+				// Last step - hide the Next button entirely
+				nextBtn.style.display = 'none';
+			} else {
+				nextBtn.style.display = '';
+				nextBtn.disabled = !isValid;
+			}
+		}
+	}
+
+	/**
+	 * Check if an element or any of its ancestors is hidden (data-visible="false")
+	 * @param {Element} element - The element to check
+	 * @param {Element} stopAt - Stop checking at this ancestor (exclusive)
+	 * @returns {boolean} true if element or any ancestor is hidden
+	 */
+	// eslint-disable-next-line class-methods-use-this
+	isElementOrAncestorHidden( element, stopAt ) {
+		let current = element;
+		while ( current && current !== stopAt ) {
+			if ( current.dataset?.visible === 'false' ) {
+				return true;
+			}
+			current = current.parentElement;
+		}
+		return false;
+	}
+
+	/**
  * @param {FormElement | Fieldset} container
  * @returns return false, if there are invalid fields
  */
 	validateContainer( container ) {
 		const fieldElements = [...container.querySelectorAll( this.inputFields )];
 		const isValid = fieldElements.reduce( ( valid, fieldElement ) => {
-			const isHidden = fieldElement.closest( '.field-wrapper' )?.dataset?.visible === 'false';
+			// Check if the field or any parent panel is hidden
+			const isHidden = this.isElementOrAncestorHidden( fieldElement, container );
 			let isFieldValid = true;
 			if ( !isHidden ) {
 				isFieldValid = fieldElement.checkValidity();
@@ -81,6 +159,9 @@ export class WizardLayout {
 			} );
 			panel.dispatchEvent( event );
 		}
+
+		// Update button states after navigation
+		this.updateButtonStates( panel );
 	}
 
 	static handleMutation( panel, mutationsList ) {
@@ -171,7 +252,36 @@ export class WizardLayout {
 		panel.append( wrapper );
 		panel.querySelector( 'fieldset' )?.classList.add( 'current-wizard-step' );
 		panel.classList.add( 'wizard' );
-		// panel.classList.add('left');
+
+		// Set up event listeners for real-time validation
+		this.setupFieldValidationListeners( panel );
+
+		// Initial button state update
+		this.updateButtonStates( panel );
+	}
+
+	/**
+	 * Set up event listeners on form fields to update button states in real-time
+	 */
+	setupFieldValidationListeners( panel ) {
+		// Listen for input/change events on form fields
+		panel.addEventListener( 'input', () => {
+			this.updateButtonStates( panel );
+		} );
+
+		panel.addEventListener( 'change', () => {
+			this.updateButtonStates( panel );
+		} );
+
+		// Also listen for visibility changes via mutation observer on field wrappers
+		const fieldObserver = new window.MutationObserver( () => {
+			this.updateButtonStates( panel );
+		} );
+
+		// Observe all field and panel wrappers for visibility changes
+		panel.querySelectorAll( '.field-wrapper, .panel-wrapper' ).forEach( ( el ) => {
+			fieldObserver.observe( el, { attributes: true, attributeFilter: ['data-visible'] } );
+		} );
 	}
 }
 
