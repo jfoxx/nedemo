@@ -79,8 +79,352 @@
       ]
     },
     {
-      "title": "Blocks",
-      "id": "blocks",
+      "title": "Site Blocks",
+      "id": "site-blocks",
+      "components": [
+        {
+          "title": "Accordion",
+          "id": "accordion",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Accordion",
+                  "model": "accordion"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Alert",
+          "id": "alert",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Alert",
+                  "model": "alert"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Ask Search",
+          "id": "ask-search",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Ask Search",
+                  "model": "ask-search"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Backdrop Grid",
+          "id": "backdrop-grid",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Backdrop Grid",
+                  "model": "backdrop-grid"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Banner",
+          "id": "banner",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Banner"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Columns",
+          "id": "columns",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Columns",
+                  "model": "columns"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Figure",
+          "id": "figure",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Figure",
+                  "model": "figure"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Fragment",
+          "id": "fragment",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Fragment",
+                  "model": "fragment"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Hero",
+          "id": "hero",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Hero",
+                  "model": "hero"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Hero Homepage",
+          "id": "hero-homepage",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Hero Homepage",
+                  "model": "hero-homepage"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Icon Button Grid",
+          "id": "icon-button-grid",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Icon Button Grid",
+                  "model": "icon-button-grid"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "In-Page Navigation",
+          "id": "in-page-navigation",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "In-Page Navigation"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Info Card Grid",
+          "id": "info-card-grid",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Info Card Grid",
+                  "model": "info-card-grid"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Intro",
+          "id": "intro",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Intro"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Link Tabs",
+          "id": "link-tabs",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Link Tabs",
+                  "model": "link-tabs"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Linked Card Grid",
+          "id": "linked-card-grid",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Linked Card Grid",
+                  "model": "linked-card-grid"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Manual Collection",
+          "id": "manual-collection",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Manual Collection",
+                  "model": "manual-collection"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Search",
+          "id": "search",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Search"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Section Tabs",
+          "id": "section-tabs",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Section Tabs",
+                  "model": "section-tabs"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Side Navigation",
+          "id": "side-navigation",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Side Navigation"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Summary Box",
+          "id": "summary-box",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Summary Box"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Table",
+          "id": "table",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Table"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Embed Adaptive Form",
+          "id": "embed-adaptive-form",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Form",
+                  "model": "embed-adaptive-form"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "Form Components",
+      "id": "form-components",
       "components": [
         {
           "title": "Adaptive Form",
@@ -122,14 +466,8 @@
                 "template": {
                   "jcr:title": "Checkbox Group",
                   "fieldType": "checkbox-group",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "enumNames": [
-                    "Item 1",
-                    "Item 2"
-                  ],
+                  "enum": ["0", "1"],
+                  "enumNames": ["Item 1", "Item 2"],
                   "orientation": "horizontal",
                   "type": "string[]"
                 }
@@ -178,14 +516,8 @@
                 "template": {
                   "jcr:title": "Drop Down List",
                   "fieldType": "drop-down",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "enumNames": [
-                    "Item 1",
-                    "Item 2"
-                  ],
+                  "enum": ["0", "1"],
+                  "enumNames": ["Item 1", "Item 2"],
                   "type": "string"
                 }
               }
@@ -217,13 +549,7 @@
                 "template": {
                   "jcr:title": "File Attachment",
                   "fieldType": "file-input",
-                  "accept": [
-                    "audio/*",
-                    "video/*",
-                    "image/*",
-                    "text/*",
-                    "application/pdf"
-                  ],
+                  "accept": ["audio/*", "video/*", "image/*", "text/*", "application/pdf"],
                   "buttonText": "Attach",
                   "dragDropText": "Drag and Drop To Upload",
                   "type": "file"
@@ -248,7 +574,7 @@
           }
         },
         {
-          "title": "Image",
+          "title": "Form Image",
           "id": "form-image",
           "plugins": {
             "xwalk": {
@@ -303,14 +629,8 @@
                 "template": {
                   "jcr:title": "Radio Group",
                   "fieldType": "radio-group",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "enumNames": [
-                    "Item 1",
-                    "Item 2"
-                  ],
+                  "enum": ["0", "1"],
+                  "enumNames": ["Item 1", "Item 2"],
                   "orientation": "horizontal"
                 }
               }
@@ -365,7 +685,7 @@
           }
         },
         {
-          "title": "Telephone input",
+          "title": "Telephone Input",
           "id": "telephone-input",
           "plugins": {
             "xwalk": {
@@ -395,7 +715,7 @@
           }
         },
         {
-          "title": "Text",
+          "title": "Plain Text",
           "id": "plain-text",
           "plugins": {
             "xwalk": {
@@ -412,7 +732,7 @@
           }
         },
         {
-          "title": "Accordion",
+          "title": "Form Accordion",
           "id": "form-accordion",
           "plugins": {
             "xwalk": {
@@ -504,7 +824,7 @@
           }
         },
         {
-          "title": "Terms and conditions",
+          "title": "Terms and Conditions",
           "id": "tnc",
           "plugins": {
             "xwalk": {
@@ -521,15 +841,11 @@
                     "textIsRich": true
                   },
                   "link": {
-                    "enum": [
-                      "dummy-link-1"
-                    ],
+                    "enum": ["dummy-link-1"],
                     "type": "string[]",
                     "fd:viewType": "toggleable-link",
                     "title": "I agree to the terms & conditions",
-                    "enumNames": [
-                      "Privacy policy."
-                    ],
+                    "enumNames": ["Privacy policy."],
                     "sling:resourceType": "core/fd/components/form/checkboxgroup/v1/checkboxgroup",
                     "fieldType": "checkbox-group",
                     "fd:rules": {
@@ -550,9 +866,7 @@
                     "fieldType": "checkbox",
                     "required": true,
                     "type": "string",
-                    "enum": [
-                      "true"
-                    ]
+                    "enum": ["true"]
                   }
                 }
               }

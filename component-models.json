@@ -4955,5 +4955,278 @@
         ]
       }
     ]
+  },
+  {
+    "id": "accordion",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the accordion"
+      },
+      {
+        "component": "multiselect",
+        "name": "classes",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Bordered",
+            "value": "bordered"
+          },
+          {
+            "name": "Multiselectable",
+            "value": "multiselectable"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alert",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the alert"
+      },
+      {
+        "component": "select",
+        "name": "classes",
+        "label": "Alert Type",
+        "options": [
+          {
+            "name": "Info",
+            "value": ""
+          },
+          {
+            "name": "Warning",
+            "value": "warning"
+          },
+          {
+            "name": "Error",
+            "value": "error"
+          },
+          {
+            "name": "Success",
+            "value": "success"
+          },
+          {
+            "name": "Emergency",
+            "value": "emergency"
+          }
+        ]
+      },
+      {
+        "component": "multiselect",
+        "name": "modifiers",
+        "label": "Modifiers",
+        "options": [
+          {
+            "name": "No Icon",
+            "value": "no-icon"
+          },
+          {
+            "name": "Slim",
+            "value": "slim"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ask-search",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the ask search block"
+      },
+      {
+        "component": "aem-content",
+        "name": "actionUrl",
+        "label": "Action URL",
+        "description": "URL to redirect when form is submitted"
+      }
+    ]
+  },
+  {
+    "id": "backdrop-grid",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the backdrop grid"
+      }
+    ]
+  },
+  {
+    "id": "columns",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the columns block"
+      }
+    ]
+  },
+  {
+    "id": "figure",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the figure"
+      },
+      {
+        "component": "select",
+        "name": "classes",
+        "label": "Alignment",
+        "options": [
+          {
+            "name": "Default (Center)",
+            "value": ""
+          },
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fragment",
+    "fields": [
+      {
+        "component": "aem-content",
+        "name": "reference",
+        "label": "Fragment Reference",
+        "description": "Path to the fragment to embed"
+      }
+    ]
+  },
+  {
+    "id": "hero",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the hero block"
+      }
+    ]
+  },
+  {
+    "id": "hero-homepage",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the homepage hero block"
+      }
+    ]
+  },
+  {
+    "id": "icon-button-grid",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the icon button grid"
+      }
+    ]
+  },
+  {
+    "id": "info-card-grid",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the info card grid"
+      },
+      {
+        "component": "select",
+        "name": "classes",
+        "label": "Style",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Blue",
+            "value": "blue"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "link-tabs",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the link tabs"
+      }
+    ]
+  },
+  {
+    "id": "linked-card-grid",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the linked card grid"
+      }
+    ]
+  },
+  {
+    "id": "manual-collection",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the manual collection"
+      }
+    ]
+  },
+  {
+    "id": "section-tabs",
+    "fields": [
+      {
+        "component": "text",
+        "name": "name",
+        "label": "Name",
+        "description": "Internal name for the section tabs"
+      }
+    ]
+  },
+  {
+    "id": "embed-adaptive-form",
+    "fields": [
+      {
+        "component": "text",
+        "name": "formUrl",
+        "label": "Form URL",
+        "description": "URL of the adaptive form JSON model (e.g., https://publish-xxx.adobeaemcloud.com/content/forms/af/myform/jcr:content/guideContainer.model.json)"
+      }
+    ]
   }
 ]

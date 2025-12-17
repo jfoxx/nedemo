@@ -12,10 +12,27 @@
       "image",
       "button",
       "title",
-      "hero",
-      "cards",
+      "accordion",
+      "alert",
+      "ask-search",
+      "backdrop-grid",
       "columns",
+      "figure",
       "fragment",
+      "hero",
+      "hero-homepage",
+      "icon-button-grid",
+      "in-page-navigation",
+      "info-card-grid",
+      "intro",
+      "link-tabs",
+      "linked-card-grid",
+      "manual-collection",
+      "search",
+      "section-tabs",
+      "side-navigation",
+      "summary-box",
+      "table",
       "form",
       "embed-adaptive-form"
     ]
@@ -37,6 +54,7 @@
       "form-modal",
       "form-reset-button",
       "form-submit-button",
+      "horizontaltabs",
       "number-input",
       "panel",
       "password",
@@ -47,6 +65,35 @@
       "text-input",
       "tnc",
       "wizard"
+    ]
+  },
+  {
+    "id": "columns",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title"
+    ]
+  },
+  {
+    "id": "hero",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title",
+      "ask-search"
+    ]
+  },
+  {
+    "id": "hero-homepage",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title",
+      "ask-search"
     ]
   }
 ]
