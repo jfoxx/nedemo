@@ -493,10 +493,52 @@ async function loadTemplate( doc, templateName ) {
 }
 
 /**
+ * Preloads the LCP (Largest Contentful Paint) image for better performance.
+ * This adds a preload link to the head and sets fetchpriority on the image.
+ */
+function preloadLCPImage() {
+	// Find the first image in the first section (likely the hero image)
+	const firstSection = document.querySelector( 'main > div' );
+	if ( !firstSection ) return;
+
+	const lcpImage = firstSection.querySelector( 'picture img' );
+	if ( !lcpImage ) return;
+
+	// Set fetchpriority and loading attributes directly on the image
+	lcpImage.setAttribute( 'fetchpriority', 'high' );
+	lcpImage.setAttribute( 'loading', 'eager' );
+
+	// Get the image source (prefer srcset for responsive images, fallback to src)
+	const imgSrc = lcpImage.src;
+	if ( !imgSrc ) return;
+
+	// Check if preload already exists
+	const existingPreload = document.querySelector( `link[rel="preload"][href="${imgSrc}"]` );
+	if ( existingPreload ) return;
+
+	// Create and add preload link to head
+	const preloadLink = document.createElement( 'link' );
+	preloadLink.rel = 'preload';
+	preloadLink.as = 'image';
+	preloadLink.href = imgSrc;
+	preloadLink.fetchPriority = 'high';
+
+	// Add imagesrcset if the image has srcset
+	if ( lcpImage.srcset ) {
+		preloadLink.imageSrcset = lcpImage.srcset;
+		preloadLink.imageSizes = lcpImage.sizes || '100vw';
+	}
+
+	document.head.appendChild( preloadLink );
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager( doc ) {
+	// Preload LCP image as early as possible
+	preloadLCPImage();
 	// Brand slug application
 	const brandSlug = getMetadata( 'brandslug' );
 	if ( brandSlug ) {
