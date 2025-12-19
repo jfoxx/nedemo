@@ -150,8 +150,8 @@ $uswds-block: 'usa-banner';
 		vertical-align: middle;
 	}
 
-	// Position the help icon inline with the label
-	.field-wrapper .field-label {
+	// Position the help icon inline with the label (only when it has a help wrapper)
+	.field-wrapper .field-label:has(.field-help-wrapper) {
 		display: inline-flex;
 		align-items: center;
 	}
