@@ -185,12 +185,30 @@ function getFieldContainer( fieldElement ) {
 }
 
 export function createHelpText( fd ) {
-	const div = document.createElement( 'div' );
-	div.className = 'field-description';
-	div.setAttribute( 'aria-live', 'polite' );
-	div.innerHTML = fd.description;
-	div.id = `${fd.id}-description`;
-	return div;
+	const wrapper = document.createElement( 'div' );
+	wrapper.className = 'field-help-wrapper';
+	wrapper.id = `${fd.id}-description`;
+
+	// Create the help icon button
+	const helpIcon = document.createElement( 'button' );
+	helpIcon.type = 'button';
+	helpIcon.className = 'field-help-icon';
+	helpIcon.setAttribute( 'aria-label', 'Help information' );
+	helpIcon.setAttribute( 'aria-describedby', `${fd.id}-tooltip` );
+	helpIcon.innerHTML = '<span class="field-help-icon__symbol">?</span>';
+
+	// Create the tooltip content
+	const tooltip = document.createElement( 'div' );
+	tooltip.className = 'field-description field-tooltip';
+	tooltip.setAttribute( 'role', 'tooltip' );
+	tooltip.setAttribute( 'aria-live', 'polite' );
+	tooltip.innerHTML = fd.description;
+	tooltip.id = `${fd.id}-tooltip`;
+
+	wrapper.append( helpIcon );
+	wrapper.append( tooltip );
+
+	return wrapper;
 }
 
 export function updateOrCreateInvalidMsg( fieldElement, msg ) {

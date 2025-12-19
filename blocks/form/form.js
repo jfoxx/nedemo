@@ -627,7 +627,12 @@ function renderField( fd ) {
 		field.append( createInput( fd ) );
 	}
 	if ( fd.description ) {
-		field.append( createHelpText( fd ) );
+		const label = field.querySelector( '.field-label' );
+		if ( label ) {
+			label.append( createHelpText( fd ) );
+		} else {
+			field.append( createHelpText( fd ) );
+		}
 		field.dataset.description = fd.description; // In case overriden by error message
 	}
 	if ( fd.fieldType !== 'radio-group' && fd.fieldType !== 'checkbox-group' && fd.fieldType !== 'captcha' ) {
