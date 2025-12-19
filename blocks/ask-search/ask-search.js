@@ -11,20 +11,6 @@ function createSubmitIcon() {
 }
 
 /**
- * Creates the microphone/voice input button
- * @param {object} placeholders - Placeholder texts
- * @returns {HTMLElement} The voice input button
- */
-function createVoiceButton( placeholders ) {
-	const voiceLabel = placeholders.askSearchVoiceLabel || 'Start voice input';
-	return button(
-		{ class: 'ask-search__voice-btn', type: 'button', 'aria-label': voiceLabel },
-		span( { class: 'icon icon-mic' } ),
-		span( { class: 'usa-sr-only' }, voiceLabel )
-	);
-}
-
-/**
  * Creates the submit button
  * @param {object} placeholders - Placeholder texts
  * @returns {HTMLElement} The submit button
@@ -55,7 +41,6 @@ function createSearchInput( placeholders ) {
 			'aria-label': searchPlaceholder,
 			autocomplete: 'off'
 		} ),
-		createVoiceButton( placeholders ),
 		createSubmitButton( placeholders )
 	);
 }
