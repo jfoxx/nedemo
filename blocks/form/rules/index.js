@@ -198,7 +198,9 @@ async function fieldChanged(payload, form, generateFormRendition) {
         break;
       case 'description':
         if (fieldWrapper) {
-          let descriptionEl = fieldWrapper.querySelector('.field-description');
+          // Look for field-description inside field-help-wrapper (new tooltip structure) or directly
+          let descriptionEl = fieldWrapper.querySelector('.field-help-wrapper .field-description')
+            || fieldWrapper.querySelector('.field-description');
           if (descriptionEl) {
             descriptionEl.innerHTML = currentValue;
           } else if (currentValue !== '') {
@@ -206,7 +208,13 @@ async function fieldChanged(payload, form, generateFormRendition) {
               id,
               description: currentValue,
             });
-            fieldWrapper.append(descriptionEl);
+            // Append to label if it exists, otherwise to field wrapper
+            const label = fieldWrapper.querySelector('.field-label');
+            if (label) {
+              label.append(descriptionEl);
+            } else {
+              fieldWrapper.append(descriptionEl);
+            }
           }
         }
         break;

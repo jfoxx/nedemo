@@ -213,19 +213,35 @@ export function createHelpText( fd ) {
 
 export function updateOrCreateInvalidMsg( fieldElement, msg ) {
 	const container = getFieldContainer( fieldElement );
-	let element = container.querySelector( ':scope > .field-description' );
-	if ( !element ) {
-		element = createHelpText( { id: fieldElement.id } );
-		container.append( element );
-	}
+	// Look for validation message element (direct child) or field-description in tooltip wrapper
+	let element = container.querySelector( ':scope > .field-validation-message' );
+	const tooltipDescription = container.querySelector( '.field-help-wrapper .field-description' );
+
 	if ( msg ) {
+		// Show validation error message
+		if ( !element ) {
+			element = document.createElement( 'div' );
+			element.className = 'field-description field-validation-message';
+			element.setAttribute( 'aria-live', 'polite' );
+			element.id = `${fieldElement.id}-validation`;
+			container.append( element );
+		}
 		container.classList.add( 'field-invalid' );
 		element.textContent = msg;
-	} else if ( container.dataset.description ) {
+		// Hide tooltip if it exists
+		if ( tooltipDescription ) {
+			tooltipDescription.closest( '.field-help-wrapper' ).style.display = 'none';
+		}
+	} else {
+		// Remove validation error
 		container.classList.remove( 'field-invalid' );
-		element.innerHTML = container.dataset.description;
-	} else if ( element ) {
-		element.remove();
+		if ( element ) {
+			element.remove();
+		}
+		// Show tooltip again if it exists
+		if ( tooltipDescription ) {
+			tooltipDescription.closest( '.field-help-wrapper' ).style.display = '';
+		}
 	}
 	return element;
 }

@@ -52,31 +52,10 @@ $uswds-block: 'usa-banner';
 	}
 	
 	/* grid css */
+	
+	// Default: full width for all elements
 	.field-wrapper {
 		grid-column: span 12;
-
-		// Column spans
-		@for $i from 1 through 12 {
-			&.col-#{$i} {
-				grid-column: span #{$i};
-			}
-		}
-
-		// Column offsets (using grid-column-start)
-		@for $i from 1 through 11 {
-			&.col-offset-#{$i} {
-				grid-column-start: #{$i + 1};
-			}
-		}
-
-		// Combined span and offset
-		@for $offset from 1 through 11 {
-			@for $span from 1 through 12 - $offset {
-				&.col-offset-#{$offset}.col-#{$span} {
-					grid-column: #{$offset + 1} / span #{$span};
-				}
-			}
-		}
 		
 		button {
 			width: 100%;
@@ -89,35 +68,74 @@ $uswds-block: 'usa-banner';
 		display: grid;
 		grid-template-columns: repeat(12, minmax(0, 1fr));
 		gap: 0 units(4);
+		grid-column: span 12;
+	}
 
-		// Column spans for nested panels
-		@for $i from 1 through 12 {
-			&.col-#{$i} {
-				grid-column: span #{$i};
-			}
-		}
-
-		// Column offsets for nested panels
-		@for $i from 1 through 11 {
-			&.col-offset-#{$i} {
-				grid-column-start: #{$i + 1};
-			}
-		}
-
-		// When a panel is column-constrained (col-1 through col-11, or has inline grid-column style),
-		// make all children full width within that panel - the inner grid should be 100% of the panel
-		@for $i from 1 through 11 {
-			&.col-#{$i} > .field-wrapper,
-			&.col-#{$i} > .panel-wrapper {
-				grid-column: span 12 !important;
-			}
+	// Mobile only: Force all columns to full width (overrides inline JS styles)
+	// Using max-width media query to only apply on mobile (below 640px/tablet breakpoint)
+	@media (max-width: 639px) {
+		.field-wrapper,
+		.panel-wrapper:not(.wizard) {
+			grid-column: span 12 !important;
 		}
 	}
 
-	// Panels with inline grid-column style (set via JS) should also have full-width children
-	.panel-wrapper[style*="grid-column"] > .field-wrapper,
-	.panel-wrapper[style*="grid-column"] > .panel-wrapper {
-		grid-column: span 12 !important;
+	// Tablet and above: Enable column layouts
+	@include at-media('tablet') {
+		.field-wrapper {
+			// Column spans
+			@for $i from 1 through 12 {
+				&.col-#{$i} {
+					grid-column: span #{$i};
+				}
+			}
+
+			// Column offsets (using grid-column-start)
+			@for $i from 1 through 11 {
+				&.col-offset-#{$i} {
+					grid-column-start: #{$i + 1};
+				}
+			}
+
+			// Combined span and offset
+			@for $offset from 1 through 11 {
+				@for $span from 1 through 12 - $offset {
+					&.col-offset-#{$offset}.col-#{$span} {
+						grid-column: #{$offset + 1} / span #{$span};
+					}
+				}
+			}
+		}
+		
+		.panel-wrapper:not(.wizard) {
+			// Column spans for nested panels
+			@for $i from 1 through 12 {
+				&.col-#{$i} {
+					grid-column: span #{$i};
+				}
+			}
+
+			// Column offsets for nested panels
+			@for $i from 1 through 11 {
+				&.col-offset-#{$i} {
+					grid-column-start: #{$i + 1};
+				}
+			}
+
+			// When a panel is column-constrained, make all children full width within that panel
+			@for $i from 1 through 11 {
+				&.col-#{$i} > .field-wrapper,
+				&.col-#{$i} > .panel-wrapper {
+					grid-column: span 12 !important;
+				}
+			}
+		}
+
+		// Panels with inline grid-column style should also have full-width children
+		.panel-wrapper[style*="grid-column"] > .field-wrapper,
+		.panel-wrapper[style*="grid-column"] > .panel-wrapper {
+			grid-column: span 12 !important;
+		}
 	}
 	
 	.usa-form,

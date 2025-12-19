@@ -80,6 +80,9 @@ export default function decorate( block ) {
 	block.textContent = '';
 	block.appendChild( tabsContainer );
 
+	// Initialize panel IDs immediately so aria-controls references are valid
+	initializePanelIds( tabsData );
+
 	// Initialize - show only the first tab's content
 	if ( tabsData.length > 0 ) {
 		// Delay to ensure sections are loaded
@@ -87,6 +90,31 @@ export default function decorate( block ) {
 			activateTab( tabsData[0].sectionId, block );
 		} );
 	}
+}
+
+/**
+ * Sets up panel IDs on sections so aria-controls references are valid
+ */
+function initializePanelIds( tabsData ) {
+	const main = document.querySelector( 'main' );
+	if ( !main ) return;
+
+	tabsData.forEach( ( tab ) => {
+		const panelId = `section-panel-${tab.sectionId}`;
+		const tabId = `section-tab-${tab.sectionId}`;
+
+		// Find sections with this tabsection value
+		const sections = main.querySelectorAll( `.section[data-tabsection="${tab.sectionId}"]` );
+
+		sections.forEach( ( section, index ) => {
+			// Only first section gets the panel ID (for aria-controls reference)
+			if ( index === 0 ) {
+				section.id = panelId;
+				section.setAttribute( 'aria-labelledby', tabId );
+			}
+			section.setAttribute( 'role', 'tabpanel' );
+		} );
+	} );
 }
 
 /**
@@ -102,6 +130,7 @@ function activateTab( sectionId, block ) {
 		const isActive = btn.dataset.tabsection === sectionId;
 		btn.classList.toggle( 'section-tabs__button--active', isActive );
 		btn.setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
+		btn.setAttribute( 'tabindex', isActive ? '0' : '-1' );
 	} );
 
 	// Get all sections with tabsection data
@@ -120,7 +149,18 @@ function activateTab( sectionId, block ) {
 
 	// Hide all tabbed sections, show the active one
 	sectionsMap.forEach( ( sections, key ) => {
-		sections.forEach( ( section ) => {
+		const panelId = `section-panel-${key}`;
+		const tabId = `section-tab-${key}`;
+
+		sections.forEach( ( section, index ) => {
+			// Set proper ARIA attributes for tabpanel
+			// Only the first section of each group gets the main panel ID
+			if ( index === 0 ) {
+				section.id = panelId;
+				section.setAttribute( 'aria-labelledby', tabId );
+			}
+			section.setAttribute( 'role', 'tabpanel' );
+
 			if ( key === sectionId ) {
 				section.style.display = '';
 				section.setAttribute( 'aria-hidden', 'false' );
