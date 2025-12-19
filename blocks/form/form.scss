@@ -141,6 +141,103 @@ $uswds-block: 'usa-banner';
 		display: none ;
 	}
 	
+	// Help icon and tooltip styles
+	.field-help-wrapper {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		margin-left: units(1);
+		vertical-align: middle;
+	}
+
+	// Position the help icon inline with the label
+	.field-wrapper .field-label {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.field-help-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: units(2);
+		height: units(2);
+		padding: 0;
+		margin: 0;
+		background: color('primary');
+		border: none;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+		aspect-ratio: 1 / 1;
+
+		&:hover,
+		&:focus {
+			background: color('primary-dark');
+			outline: 2px solid color('primary-dark');
+			outline-offset: 2px;
+		}
+
+		&__symbol {
+			color: color('white');
+			font-size: size('body', 2);
+			font-weight: font-weight('bold');
+			line-height: 1;
+		}
+	}
+
+	.field-tooltip {
+		position: absolute;
+		top: calc(100% + #{units(0.5)});
+		left: 50%;
+		z-index: 1000;
+		width: max-content;
+		max-width: units('card-lg');
+		padding: units(1.5);
+		font-size: size('body', 4);
+		font-weight: font-weight('normal');
+		color: color('base-darkest');
+		background: color('white');
+		border: 1px solid color('base-lighter');
+		border-radius: units(0.5);
+		box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+		visibility: hidden;
+		opacity: 0;
+		transition: opacity 0.2s ease, visibility 0.2s ease;
+		transform: translateX(-50%);
+
+		// Arrow pointing up
+		&::before {
+			content: '';
+			position: absolute;
+			bottom: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 8px solid transparent;
+			border-bottom-color: color('base-lighter');
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			bottom: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 7px solid transparent;
+			border-bottom-color: color('white');
+		}
+	}
+
+	// Show tooltip on hover/focus
+	.field-help-wrapper:hover .field-tooltip,
+	.field-help-wrapper:focus-within .field-tooltip,
+	.field-help-icon:hover + .field-tooltip,
+	.field-help-icon:focus + .field-tooltip {
+		visibility: visible;
+		opacity: 1;
+	}
+
 	.field-description {
 		@include u-font-weight('bold');
 		margin-top: units(.5);
